@@ -1,0 +1,41 @@
+<div class="grid-container">
+  <h1 class="mat-h1">Dashboard</h1>
+  <mat-grid-list cols="2" rowHeight="350px">
+    <mat-grid-tile colspan="2" rowspan="1">
+      <mat-card class="dashboard-card">
+        <mat-card-header>
+          <mat-card-title>
+            Alle Umfragen
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="dashboard-card-content">
+
+          <mat-list role="list">
+            <ng-container *ngFor="let survey of allSurveys | async">
+              <mat-list-item role="listitem">
+                {{survey.question}}
+                <button mat-icon-button aria-label="Starte Umfrage">
+                  <mat-icon>play_circle_outline</mat-icon>
+                </button>
+              </mat-list-item>
+              <mat-divider inset="true"></mat-divider>
+            </ng-container>
+          </mat-list>
+
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+    <mat-grid-tile colspan="2" rowspan="1">
+      <mat-card class="dashboard-card">
+        <mat-card-header>
+          <mat-card-title>
+            Laufende Umfragen
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="dashboard-card-content">
+
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>

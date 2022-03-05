@@ -1,0 +1,30 @@
+<form [formGroup]="questionForm" novalidate (ngSubmit)="onSubmit()">
+  <mat-card class="shipping-card">
+    <mat-card-header>
+      <mat-card-title>Neue Umfrage erstellen</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Frage" formControlName="question">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row" *ngFor="let formControl of [].constructor(answersCount); let i = index;">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Antwort {{i+1}}" formControlName="answer-{{i}}">
+          </mat-form-field>
+        </div>
+      </div>
+      <mat-error *ngIf="questionForm.errors?.['minTwoAnswers'] && questionForm.touched">
+        Mindestens zwei Antworten.
+      </mat-error>
+      <button mat-raised-button color="primary" type="button" (click)="addAnswer()">Antwort hinzufügen</button>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" type="submit" [disabled]="!questionForm.valid">Erstellen</button>
+    </mat-card-actions>
+  </mat-card>
+</form>
