@@ -1,0 +1,13 @@
+<form [formGroup]="addressForm" novalidate (ngSubmit)="onSubmit()">
+  <mat-card class="shipping-card">
+    <mat-card-header>
+      <mat-card-title>{{survey?.question}}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" type="submit">Starte Umfrage</button>
+    </mat-card-actions>
+  </mat-card>
+</form>

@@ -7,7 +7,8 @@ const routes: Routes = [
   {
     path: '', component: AppShellComponent, children: [
       { path: '', component: SurveyOverviewComponent },
-      { path: 'create-survey', loadChildren: () => import('./features/create-survey/create-survey.module').then(module => module.CreateSurveyModule) }
+      { path: 'create-survey', loadChildren: () => import('./features/create-survey/create-survey.module').then(module => module.CreateSurveyModule) },
+      { path: 'start-survey', loadChildren: () => import('./features/start-survey/start-survey.module').then(module => module.StartSurveyModule) }
     ]
   },
   { path: '**', redirectTo: '' }
