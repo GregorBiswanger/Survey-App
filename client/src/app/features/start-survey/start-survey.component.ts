@@ -1,3 +1,4 @@
+import { ActiveSurvey } from './../survey/survey.component';
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -14,15 +15,15 @@ export class StartSurveyComponent {
   addressForm = this.fb.group({
   });
 
-  constructor(private fb: FormBuilder, router: Router, private startSurveyService: StartSurveyService) {
+  constructor(private fb: FormBuilder, private router: Router, private startSurveyService: StartSurveyService) {
     this.survey = router.getCurrentNavigation()?.extras.state as Survey;
   }
 
   onSubmit() {
     if(this.survey) {
-      this.startSurveyService.start(this.survey).subscribe(activeSurvey => {
+      this.startSurveyService.start(this.survey).subscribe((activeSurvey: ActiveSurvey) => {
+        this.router.navigate(['/survey'], { state: activeSurvey });
         console.log('Antwort vom Backend: ', activeSurvey);
-        alert('Thanks!');
       });
     }
   }
