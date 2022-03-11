@@ -1,0 +1,24 @@
+{
+  "name": "umfrage-app",
+  "version": "1.0.0",
+  "description": "The poll app allows creating polls via a web app. Respondents can take a survey anonymously.\r The project is part of a German developer community \"My Coding Zone\". This application was developed step by step via Twitch live stream.",
+  "scripts": {
+    "start:dev": "concurrently \"npm run start:dev:server\" \"npm run start:dev:client\"",
+    "start:dev:server": "npm run start:dev --prefix ./server",
+    "start:dev:client": "npm start --prefix ./client"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GregorBiswanger/Survey-App.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GregorBiswanger/Survey-App/issues"
+  },
+  "homepage": "https://github.com/GregorBiswanger/Survey-App#readme",
+  "dependencies": {
+    "concurrently": "^7.0.0"
+  }
+}
