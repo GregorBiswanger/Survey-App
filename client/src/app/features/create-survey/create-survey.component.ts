@@ -71,6 +71,7 @@ export class CreateSurveyComponent implements OnInit {
 }
 
 export interface Survey {
+  _id?: string;
   question: string;
   answers: string[];
 }
