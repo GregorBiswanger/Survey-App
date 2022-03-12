@@ -1,16 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { SurveyService } from './survey.service';
 
 @Component({
   selector: 'app-survey',
   templateUrl: './survey.component.html',
   styleUrls: ['./survey.component.scss']
 })
-export class SurveyComponent implements OnInit {
+export class SurveyComponent implements OnInit, OnDestroy {
   activeSurvey?: ActiveSurvey;
   voted = false;
+  votedSubscription?: Subscription;
 
-  constructor(router: Router) {
+  constructor(router: Router, private surveyService: SurveyService) {
     this.activeSurvey = router.getCurrentNavigation()?.extras.state as ActiveSurvey;
   }
 
@@ -18,9 +21,20 @@ export class SurveyComponent implements OnInit {
   }
 
   vote(surveyIndex: number) {
-    this.voted = true;
+    if (this.activeSurvey) {
+      this.voted = true;
+
+      this.votedSubscription = this.surveyService.vote(this.activeSurvey._id!, surveyIndex)
+        .subscribe(activeSurvey => {
+          this.activeSurvey = activeSurvey;
+          console.log(activeSurvey);
+        });
+    }
   }
 
+  ngOnDestroy() {
+    this.votedSubscription?.unsubscribe();
+  }
 }
 
 export interface ActiveSurvey {
