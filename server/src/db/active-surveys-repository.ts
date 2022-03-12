@@ -31,13 +31,27 @@ async function existsConnectCode(connectCode: string) {
     return await dbCollection().countDocuments({ connectCode }, { limit: 1 }) > 0;
 }
 
+async function updateVote(activeSurveyId: string, voteIndex: number) {
+    const activeSurvey = await dbCollection().findOneAndUpdate({ _id: new ObjectId(activeSurveyId) }, {
+        $inc: {
+            [`survey.answers.${voteIndex}.voteCount`]: 1,
+            totalVotesCount: 1
+        }
+    }, {
+        returnDocument: 'after'
+    });
+
+    return activeSurvey.value;
+}
+
 function dbCollection() {
     return db().collection<ActiveSurvey>(COLLECTION_NAME);
 }
 
 export default {
     save,
-    existsConnectCode
+    existsConnectCode,
+    updateVote
 }
 
 export interface ActiveSurvey {
