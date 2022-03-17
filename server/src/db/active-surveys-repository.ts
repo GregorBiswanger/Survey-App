@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 import db from './db';
+import { calcVoteInPercentAggregate, voteAggregate } from './aggregates/update.aggregates';
 import surveysRepository from './surveys-repository';
 const COLLECTION_NAME = 'active-surveys';
 
@@ -15,7 +16,8 @@ async function save(surveyId: string, connectCode: string) {
                 question: survey.question,
                 answers: survey.answers.map<VoteAnswer>(answer => ({
                     answer,
-                    voteCount: 0
+                    voteCount: 0,
+                    voteInPercent: 0
                 })),
             }
         }
@@ -31,13 +33,10 @@ async function existsConnectCode(connectCode: string) {
     return await dbCollection().countDocuments({ connectCode }, { limit: 1 }) > 0;
 }
 
-async function updateVote(activeSurveyId: string, voteIndex: number) {
-    const activeSurvey = await dbCollection().findOneAndUpdate({ _id: new ObjectId(activeSurveyId) }, {
-        $inc: {
-            [`survey.answers.${voteIndex}.voteCount`]: 1,
-            totalVotesCount: 1
-        }
-    }, {
+async function updateVote(activeSurveyId: string, answerVoteIndex: number) {
+    const activeSurvey = await dbCollection().findOneAndUpdate({ _id: new ObjectId(activeSurveyId) }, [
+        voteAggregate(answerVoteIndex), calcVoteInPercentAggregate()
+    ], {
         returnDocument: 'after'
     });
 
@@ -70,4 +69,5 @@ export interface VoteSurvey {
 export interface VoteAnswer {
     answer: string;
     voteCount: number;
+    voteInPercent: number;
 }
