@@ -11,9 +11,10 @@ import { SurveyService } from './survey.service';
 export class SurveyComponent implements OnInit, OnDestroy {
   activeSurvey?: ActiveSurvey;
   votedIndex = -1;
-  votedSubscription?: Subscription;
   connectCode = '';
   pageReady = false;
+
+  votedSubscription?: Subscription;
 
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private surveyService: SurveyService) {
     this.activeSurvey = router.getCurrentNavigation()?.extras.state as ActiveSurvey;
@@ -21,10 +22,10 @@ export class SurveyComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.activatedRoute.params.subscribe(params => {
-      this.connectCode = params['connectCode'];
+      const connectCode = params['connectCode'];
 
-      if(this.activeSurvey === undefined && this.connectCode) {
-        this.surveyService.loadActiveSurvey(this.connectCode).subscribe(activeSurvey => {
+      if(this.activeSurvey === undefined && connectCode) {
+        this.surveyService.loadActiveSurvey(connectCode).subscribe(activeSurvey => {
           this.activeSurvey = activeSurvey;
           this.pageReady = true;
         });

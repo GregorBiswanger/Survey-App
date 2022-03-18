@@ -23,8 +23,8 @@
             <div class="poll__answer" *ngFor="let voteAnswer of activeSurvey?.survey?.answers; let i = index"
                 (click)="vote(i)" [class.poll__answer--selected]="i === votedIndex">
                 {{ voteAnswer.answer }}
-                <span class="poll__percentage-bar" [ngStyle]="getPercentageWidthStyle(voteAnswer)"></span>
-                <span class="poll__percentage-value">
+                <span class="poll__percentage-bar" *ngIf="votedIndex > -1" [ngStyle]="getPercentageWidthStyle(voteAnswer)"></span>
+                <span class="poll__percentage-value" *ngIf="votedIndex > -1">
                     {{ voteAnswer.voteInPercent }}%
                 </span>
             </div>
