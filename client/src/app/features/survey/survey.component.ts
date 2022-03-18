@@ -32,6 +32,11 @@ export class SurveyComponent implements OnInit, OnDestroy {
     }
   }
 
+  getPercentageWidthStyle(voteAnswer: VoteAnswer) {
+    return {
+      width: voteAnswer.voteInPercent + '%'
+    }
+  }
   ngOnDestroy() {
     this.votedSubscription?.unsubscribe();
   }

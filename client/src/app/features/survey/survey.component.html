@@ -1,18 +1,20 @@
-<mat-card class="shipping-card">
+<mat-card class="poll">
     <mat-card-header>
         <mat-card-title>{{activeSurvey?.survey?.question}}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <div *ngIf="voted" class="row">
-            <div class="col">Vielen Dank!</div>
-        </div>
-        <ng-container *ngIf="!voted">
-            <div class="row" *ngFor="let voteAnswer of activeSurvey?.survey?.answers; let i = index;">
-                <div class="col">
-                    <button mat-raised-button color="primary" type="button" (click)="vote(i)">{{voteAnswer.answer}}</button>
-                </div>
+
+        <div class="poll__answers">
+            <div class="poll__answer" *ngFor="let voteAnswer of activeSurvey?.survey?.answers; let i = index"
+                (click)="vote(i)" [class.poll__answer--selected]="i === votedIndex">
+                {{ voteAnswer.answer }}
+                <span class="poll__percentage-bar" [ngStyle]="getPercentageWidthStyle(voteAnswer)"></span>
+                <span class="poll__percentage-value">
+                    {{ voteAnswer.voteInPercent }}%
+                </span>
             </div>
-        </ng-container>
+        </div>
+
     </mat-card-content>
     <mat-card-actions>
     </mat-card-actions>
