@@ -22,7 +22,7 @@ export class StartSurveyComponent {
   onSubmit() {
     if(this.survey) {
       this.startSurveyService.start(this.survey).subscribe((activeSurvey: ActiveSurvey) => {
-        this.router.navigate(['/survey'], { state: activeSurvey });
+        this.router.navigate(['/survey/' + activeSurvey.connectCode], { state: activeSurvey });
         console.log('Antwort vom Backend: ', activeSurvey);
       });
     }
