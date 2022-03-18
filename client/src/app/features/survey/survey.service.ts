@@ -8,7 +8,6 @@ import { ActiveSurvey } from './survey.component';
   providedIn: 'root'
 })
 export class SurveyService {
-
   constructor(private httpClient: HttpClient) { }
 
   loadActiveSurvey(connectCode: string) {
@@ -23,10 +22,19 @@ export class SurveyService {
       });
 
       socket.emit('survey:vote', activeSurveyId, voteIndex);
+      localStorage.setItem(activeSurveyId, voteIndex.toString());
 
       return () => {
         socket.disconnect();
       }
     });
+  }
+
+  canVote(activeSurveyId: string) {
+    return !localStorage.getItem(activeSurveyId);
+  }
+
+  lastVotedIndex(activeSurveyId: string) {
+    return Number.parseInt(localStorage.getItem(activeSurveyId) || '-1');
   }
 }

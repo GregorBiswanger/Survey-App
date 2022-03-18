@@ -28,6 +28,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
         this.surveyService.loadActiveSurvey(connectCode).subscribe(activeSurvey => {
           this.activeSurvey = activeSurvey;
           this.pageReady = true;
+          this.votedIndex = this.surveyService.lastVotedIndex(activeSurvey!._id!);
         });
       } else {
         this.pageReady = true;
@@ -40,7 +41,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
   }
 
   vote(surveyIndex: number) {
-    if (this.activeSurvey) {
+    if (this.activeSurvey && this.surveyService.canVote(this.activeSurvey._id!)) {
       this.votedIndex = surveyIndex;
 
       this.votedSubscription = this.surveyService.vote(this.activeSurvey._id!, surveyIndex)

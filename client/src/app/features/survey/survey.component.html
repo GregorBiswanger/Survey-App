@@ -13,7 +13,7 @@
     </mat-card-content>
 </mat-card>
 
-<mat-card class="poll" *ngIf="activeSurvey">
+<mat-card class="poll" [class.poll--voted]="votedIndex > -1" *ngIf="activeSurvey">
     <mat-card-header>
         <mat-card-title>{{activeSurvey?.survey?.question}}</mat-card-title>
     </mat-card-header>

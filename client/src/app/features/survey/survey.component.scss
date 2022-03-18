@@ -23,6 +23,11 @@
     user-select: none;
 }
 
+.poll--voted .poll__answer {
+    cursor: default;
+    pointer-events: none;
+}
+
 .poll__answer--selected {
     border: 2px solid #8f9fe8;
 }
