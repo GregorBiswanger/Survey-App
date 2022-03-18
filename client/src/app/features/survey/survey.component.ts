@@ -13,21 +13,29 @@ export class SurveyComponent implements OnInit, OnDestroy {
   votedIndex = -1;
   votedSubscription?: Subscription;
   connectCode = '';
+  pageReady = false;
 
-  constructor(router: Router, private activatedRoute: ActivatedRoute, private surveyService: SurveyService) {
+  constructor(private router: Router, private activatedRoute: ActivatedRoute, private surveyService: SurveyService) {
     this.activeSurvey = router.getCurrentNavigation()?.extras.state as ActiveSurvey;
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.activatedRoute.params.subscribe(params => {
       this.connectCode = params['connectCode'];
 
-      if(this.activeSurvey === undefined) {
+      if(this.activeSurvey === undefined && this.connectCode) {
         this.surveyService.loadActiveSurvey(this.connectCode).subscribe(activeSurvey => {
           this.activeSurvey = activeSurvey;
+          this.pageReady = true;
         });
+      } else {
+        this.pageReady = true;
       }
     });
+  }
+  
+  navigateToEnteredConnectCode() {
+    this.router.navigate(['survey', this.connectCode]);
   }
 
   vote(surveyIndex: number) {

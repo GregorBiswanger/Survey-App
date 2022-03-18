@@ -1,4 +1,19 @@
-<mat-card class="poll">
+<mat-card *ngIf="!activeSurvey && pageReady">
+    <mat-card-header>
+        <mat-card-title>Umfrage PIN</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <mat-form-field appearance="fill">
+            <input matInput type="number" maxlength="6" [(ngModel)]="connectCode">
+            <button *ngIf="connectCode" matSuffix mat-icon-button aria-label="Clear" (click)="connectCode=''">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+          <button mat-flat-button color="primary" (click)="navigateToEnteredConnectCode()">OK</button>
+    </mat-card-content>
+</mat-card>
+
+<mat-card class="poll" *ngIf="activeSurvey">
     <mat-card-header>
         <mat-card-title>{{activeSurvey?.survey?.question}}</mat-card-title>
     </mat-card-header>
