@@ -29,6 +29,10 @@ async function save(surveyId: string, connectCode: string) {
     throw new Error(`Survey with id ${surveyId} does not exist.`);
 }
 
+async function load(connectCode: string) {
+    return await dbCollection().findOne({ connectCode });
+}
+
 async function existsConnectCode(connectCode: string) {
     return await dbCollection().countDocuments({ connectCode }, { limit: 1 }) > 0;
 }
@@ -49,6 +53,7 @@ function dbCollection() {
 
 export default {
     save,
+    load,
     existsConnectCode,
     updateVote
 }

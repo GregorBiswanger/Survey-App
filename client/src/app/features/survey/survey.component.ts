@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SurveyService } from './survey.service';
 
@@ -10,19 +10,29 @@ import { SurveyService } from './survey.service';
 })
 export class SurveyComponent implements OnInit, OnDestroy {
   activeSurvey?: ActiveSurvey;
-  voted = false;
+  votedIndex = -1;
   votedSubscription?: Subscription;
+  connectCode = '';
 
-  constructor(router: Router, private surveyService: SurveyService) {
+  constructor(router: Router, private activatedRoute: ActivatedRoute, private surveyService: SurveyService) {
     this.activeSurvey = router.getCurrentNavigation()?.extras.state as ActiveSurvey;
   }
 
   ngOnInit(): void {
+    this.activatedRoute.params.subscribe(params => {
+      this.connectCode = params['connectCode'];
+
+      if(this.activeSurvey === undefined) {
+        this.surveyService.loadActiveSurvey(this.connectCode).subscribe(activeSurvey => {
+          this.activeSurvey = activeSurvey;
+        });
+      }
+    });
   }
 
   vote(surveyIndex: number) {
     if (this.activeSurvey) {
-      this.voted = true;
+      this.votedIndex = surveyIndex;
 
       this.votedSubscription = this.surveyService.vote(this.activeSurvey._id!, surveyIndex)
         .subscribe(activeSurvey => {
@@ -37,6 +47,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
       width: voteAnswer.voteInPercent + '%'
     }
   }
+
   ngOnDestroy() {
     this.votedSubscription?.unsubscribe();
   }
@@ -58,4 +69,5 @@ export interface VoteSurvey {
 export interface VoteAnswer {
   answer: string;
   voteCount: number;
+  voteInPercent: number;
 }
