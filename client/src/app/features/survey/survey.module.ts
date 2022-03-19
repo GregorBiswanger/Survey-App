@@ -5,6 +5,8 @@ import { SurveyRoutingModule } from './survey-routing.module';
 import { SurveyComponent } from './survey.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { FormsModule } from '@angular/forms';
+import { QRCodeModule } from 'angularx-qrcode';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 @NgModule({
   declarations: [
@@ -14,7 +16,9 @@ import { FormsModule } from '@angular/forms';
     SharedModule,
     CommonModule,
     FormsModule,
-    SurveyRoutingModule
+    SurveyRoutingModule,
+    QRCodeModule,
+    ClipboardModule
   ]
 })
 export class SurveyModule { }

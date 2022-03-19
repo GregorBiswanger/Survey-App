@@ -13,6 +13,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
   votedIndex = -1;
   connectCode = '';
   pageReady = false;
+  surveyUrl = '';
 
   votedSubscription?: Subscription;
 
@@ -25,6 +26,8 @@ export class SurveyComponent implements OnInit, OnDestroy {
       const connectCode = params['connectCode'];
 
       if(this.activeSurvey === undefined && connectCode) {
+        this.surveyUrl = window.location.href;
+        
         this.surveyService.loadActiveSurvey(connectCode).subscribe(activeSurvey => {
           this.activeSurvey = activeSurvey;
           this.pageReady = true;
@@ -63,9 +66,14 @@ export class SurveyComponent implements OnInit, OnDestroy {
   }
 
   getPercentageWidthStyle(voteAnswer: VoteAnswer) {
+    const percent = this.votedIndex > -1 ? voteAnswer.voteInPercent : 0;
     return {
-      width: voteAnswer.voteInPercent + '%'
+      width: percent + '%'
     }
+  }
+
+  trackAnswer(index: number, answer: VoteAnswer) {
+    return index;
   }
 
   ngOnDestroy() {
