@@ -30,6 +30,21 @@ export class SurveyService {
     });
   }
 
+  listenVoting(connectCode: string) {
+    return new Observable<ActiveSurvey>(observer => {
+      const socket = io('http://localhost:3000');
+      socket.on('survey:voted', (activeSurvey: ActiveSurvey) => {
+        observer.next(activeSurvey);
+      });
+
+      socket.emit('survey:listen', connectCode);
+
+      return () => {
+        socket.disconnect();
+      }
+    });
+  }
+
   canVote(activeSurveyId: string) {
     return !localStorage.getItem(activeSurveyId);
   }

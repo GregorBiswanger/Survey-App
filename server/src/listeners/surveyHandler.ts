@@ -18,13 +18,23 @@ export default (io: Io, socket: Socket) => {
         const activeSurvey = await activeSurveysRepository.updateVote(activeSurveyId, voteIndex);
 
         if(activeSurvey) {
-            socket.join(activeSurvey.connectCode);
+            await socket.join(activeSurvey.connectCode);
             io.to(activeSurvey.connectCode).emit('survey:voted', activeSurvey);
+        }
+    }
+
+    const listenSurvey = async (connectCode: string) => {
+        const activeSurvey = await activeSurveysRepository.load(connectCode);
+
+        if(activeSurvey) {
+            await socket.join(activeSurvey.connectCode);
+            socket.emit('survey:voted', activeSurvey);
         }
     }
 
     socket.on('survey:start', startSurvey);
     socket.on('survey:vote', voteSurvey);
+    socket.on('survey:listen', listenSurvey);
 }
 
 function generateConnectCode() {
