@@ -47,6 +47,10 @@ async function updateVote(activeSurveyId: string, answerVoteIndex: number) {
     return activeSurvey.value;
 }
 
+async function remove(connectCode: string) {
+    await dbCollection().deleteOne({ connectCode });
+}
+
 function dbCollection() {
     return db().collection<ActiveSurvey>(COLLECTION_NAME);
 }
@@ -55,7 +59,8 @@ export default {
     save,
     load,
     existsConnectCode,
-    updateVote
+    updateVote,
+    remove
 }
 
 export interface ActiveSurvey {

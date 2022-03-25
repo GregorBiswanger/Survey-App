@@ -14,6 +14,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
   connectCode = '';
   pageReady = false;
   surveyUrl = '';
+  active = true;
 
   votedSubscription?: Subscription;
 
@@ -23,12 +24,19 @@ export class SurveyComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.activatedRoute.params.subscribe(params => {
-      const connectCode = params['connectCode'];
+      this.connectCode = params['connectCode'];
 
-      if(this.activeSurvey === undefined && connectCode) {
+      if (this.connectCode) {
+        this.surveyService.listenStopped(this.connectCode).subscribe(() => {
+          this.active = false;
+        });
+      }
+
+      if(this.activeSurvey === undefined && this.connectCode) {
         this.surveyUrl = window.location.href;
+
         
-        this.surveyService.loadActiveSurvey(connectCode).subscribe(activeSurvey => {
+        this.surveyService.loadActiveSurvey(this.connectCode).subscribe(activeSurvey => {
           this.activeSurvey = activeSurvey;
           this.pageReady = true;
 
@@ -38,7 +46,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
 
           this.votedIndex = this.surveyService.lastVotedIndex(activeSurvey._id!);
           if (!this.surveyService.canVote(activeSurvey._id!)) {
-            this.votedSubscription = this.surveyService.listenVoting(connectCode).subscribe(activeSurvey => {
+            this.votedSubscription = this.surveyService.listenVoting(this.connectCode).subscribe(activeSurvey => {
               this.activeSurvey = activeSurvey;
             });
           }
@@ -54,7 +62,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
   }
 
   vote(surveyIndex: number) {
-    if (this.activeSurvey && this.surveyService.canVote(this.activeSurvey._id!)) {
+    if (this.activeSurvey && this.surveyService.canVote(this.activeSurvey._id!) && this.active) {
       this.votedIndex = surveyIndex;
 
       this.votedSubscription = this.surveyService.vote(this.activeSurvey._id!, surveyIndex)
@@ -74,6 +82,10 @@ export class SurveyComponent implements OnInit, OnDestroy {
 
   trackAnswer(index: number, answer: VoteAnswer) {
     return index;
+  }
+
+  stopSurvey() {
+    this.surveyService.stop(this.connectCode);
   }
 
   ngOnDestroy() {

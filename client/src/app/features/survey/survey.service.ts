@@ -49,6 +49,27 @@ export class SurveyService {
     return !localStorage.getItem(activeSurveyId);
   }
 
+  stop(connectCode: string) {
+    const socket = io('http://localhost:3000');
+    socket.emit('survey:stop', connectCode);
+  }
+
+  listenStopped(connectCode: string) {
+    return new Observable(observer => {
+      const socket = io('http://localhost:3000');
+      socket.on('survey:stopped', () => {
+        observer.next();
+        observer.complete();
+      });
+
+      socket.emit('survey:listenStopped', connectCode);
+
+      return () => {
+        socket.disconnect();
+      }
+    });
+  }
+
   lastVotedIndex(activeSurveyId: string) {
     return Number.parseInt(localStorage.getItem(activeSurveyId) || '-1');
   }

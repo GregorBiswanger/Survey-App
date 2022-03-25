@@ -1,54 +1,53 @@
 <mat-card *ngIf="!activeSurvey && pageReady">
-    <mat-card-header>
-        <mat-card-title>Umfrage PIN</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-        <mat-form-field appearance="fill">
-            <input matInput type="number" maxlength="6" [(ngModel)]="connectCode">
-            <button *ngIf="connectCode" matSuffix mat-icon-button aria-label="Clear" (click)="connectCode=''">
-              <mat-icon>close</mat-icon>
-            </button>
-          </mat-form-field>
-          <button mat-flat-button color="primary" (click)="navigateToEnteredConnectCode()">OK</button>
-    </mat-card-content>
+  <mat-card-header>
+    <mat-card-title>Umfrage PIN</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-form-field appearance="fill">
+      <input matInput type="number" maxlength="6" [(ngModel)]="connectCode">
+      <button *ngIf="connectCode" matSuffix mat-icon-button aria-label="Clear" (click)="connectCode=''">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+    <button mat-flat-button color="primary" (click)="navigateToEnteredConnectCode()">OK</button>
+  </mat-card-content>
 </mat-card>
 
 <ng-container *ngIf="activeSurvey">
-    <qrcode [qrdata]="surveyUrl" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
-    <input type="text" [value]="surveyUrl" />
-    <button [cdkCopyToClipboard]="surveyUrl">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 512 512"
-        width="1em"
-        height="1em"
-      >
-        <path
-          d="M405.333 80h-87.35C310.879 52.396 285.821 32 256 32s-54.879 20.396-61.983 48h-87.35C83.198 80 64 99.198 64 122.667v314.665C64 460.801 83.198 480 106.667 480h298.666C428.802 480 448 460.801 448 437.332V122.667C448 99.198 428.802 80 405.333 80zM256 80c11.729 0 21.333 9.599 21.333 21.333s-9.604 21.334-21.333 21.334-21.333-9.6-21.333-21.334S244.271 80 256 80zm152 360H104V120h40v72h224v-72h40v320z"
-        ></path>
-      </svg>
-      Copy URL
-    </button>
+  <qrcode [qrdata]="surveyUrl" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
+  <input type="text" [value]="surveyUrl" />
+  <button [cdkCopyToClipboard]="surveyUrl">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em">
+      <path
+        d="M405.333 80h-87.35C310.879 52.396 285.821 32 256 32s-54.879 20.396-61.983 48h-87.35C83.198 80 64 99.198 64 122.667v314.665C64 460.801 83.198 480 106.667 480h298.666C428.802 480 448 460.801 448 437.332V122.667C448 99.198 428.802 80 405.333 80zM256 80c11.729 0 21.333 9.599 21.333 21.333s-9.604 21.334-21.333 21.334-21.333-9.6-21.333-21.334S244.271 80 256 80zm152 360H104V120h40v72h224v-72h40v320z">
+      </path>
+    </svg>
+    Copy URL
+  </button>
 </ng-container>
 
 <mat-card class="poll" [class.poll--voted]="votedIndex > -1" *ngIf="activeSurvey">
-    <mat-card-header>
-        <mat-card-title>{{activeSurvey?.survey?.question}}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
+  <mat-card-header>
+    <mat-card-title>{{activeSurvey?.survey?.question}}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
 
-        <div class="poll__answers">
-            <div class="poll__answer" *ngFor="let voteAnswer of activeSurvey?.survey?.answers; let i = index; trackBy: trackAnswer"
-                (click)="vote(i)" [class.poll__answer--selected]="i === votedIndex">
-                {{ voteAnswer.answer }}
-                <span class="poll__percentage-bar" [ngStyle]="getPercentageWidthStyle(voteAnswer)"></span>
-                <span class="poll__percentage-value" *ngIf="votedIndex > -1">
-                    {{ voteAnswer.voteInPercent }}%
-                </span>
-            </div>
-        </div>
+    <h3 *ngIf="active === false">Umfrage beendet!</h3>
 
-    </mat-card-content>
-    <mat-card-actions>
-    </mat-card-actions>
+    <div class="poll__answers">
+      <div class="poll__answer"
+        *ngFor="let voteAnswer of activeSurvey?.survey?.answers; let i = index; trackBy: trackAnswer" (click)="vote(i)"
+        [class.poll__answer--selected]="i === votedIndex">
+        {{ voteAnswer.answer }}
+        <span class="poll__percentage-bar" [ngStyle]="getPercentageWidthStyle(voteAnswer)"></span>
+        <span class="poll__percentage-value" *ngIf="votedIndex > -1 || active === false">
+          {{ voteAnswer.voteInPercent }}%
+        </span>
+      </div>
+    </div>
+
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button color="primary" (click)="stopSurvey()">Beende Umfrage</button>
+  </mat-card-actions>
 </mat-card>
