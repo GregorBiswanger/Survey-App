@@ -18,26 +18,27 @@ export class SurveyComponent implements OnInit, OnDestroy {
 
   votedSubscription?: Subscription;
 
+  remainingTimeInPercent = 100;
+
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private surveyService: SurveyService) {
-    this.activeSurvey = router.getCurrentNavigation()?.extras.state as ActiveSurvey;
+    this.setActiveSurvey(router.getCurrentNavigation()?.extras.state as ActiveSurvey);
   }
 
   ngOnInit() {
     this.activatedRoute.params.subscribe(params => {
       this.connectCode = params['connectCode'];
+      this.surveyUrl = window.location.href;
 
       if (this.connectCode) {
         this.surveyService.listenStopped(this.connectCode).subscribe(() => {
           this.active = false;
+          this.updateRemainingTime();
         });
       }
 
       if(this.activeSurvey === undefined && this.connectCode) {
-        this.surveyUrl = window.location.href;
-
-        
         this.surveyService.loadActiveSurvey(this.connectCode).subscribe(activeSurvey => {
-          this.activeSurvey = activeSurvey;
+          this.setActiveSurvey(activeSurvey);
           this.pageReady = true;
 
           if (!activeSurvey) {
@@ -47,7 +48,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
           this.votedIndex = this.surveyService.lastVotedIndex(activeSurvey._id!);
           if (!this.surveyService.canVote(activeSurvey._id!)) {
             this.votedSubscription = this.surveyService.listenVoting(this.connectCode).subscribe(activeSurvey => {
-              this.activeSurvey = activeSurvey;
+              this.setActiveSurvey(activeSurvey);
             });
           }
         });
@@ -67,7 +68,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
 
       this.votedSubscription = this.surveyService.vote(this.activeSurvey._id!, surveyIndex)
         .subscribe(activeSurvey => {
-          this.activeSurvey = activeSurvey;
+          this.setActiveSurvey(activeSurvey);
           console.log(activeSurvey);
         });
     }
@@ -78,6 +79,47 @@ export class SurveyComponent implements OnInit, OnDestroy {
     return {
       width: percent + '%'
     }
+  }
+
+  private intervalHandle?: number;
+  private receivedAt?: Date;
+  private setActiveSurvey(activeSurvey: ActiveSurvey | undefined)
+  {
+    this.activeSurvey = activeSurvey;
+    if (activeSurvey && activeSurvey.options.duration) {
+      this.receivedAt = new Date();
+      this.updateRemainingTime();
+    }
+  }
+
+  private updateRemainingTime() {
+    this.remainingTimeInPercent = this.calculateRemainingTimeInPercent();
+
+    if (this.intervalHandle) {
+      window.clearInterval(this.intervalHandle);
+    }
+
+    if (this.remainingTimeInPercent <= 0) {
+      return;
+    }
+
+    this.intervalHandle = window.setInterval(() => {
+      this.remainingTimeInPercent = this.calculateRemainingTimeInPercent();
+      if (this.remainingTimeInPercent <= 0) {
+        window.clearInterval(this.intervalHandle);
+      }
+    }, 200);
+  }
+
+  private calculateRemainingTimeInPercent() {
+    if (!this.active) {
+      return 0;
+    }
+
+    const durationInMs = this.activeSurvey!.options.duration;
+    const durationSinceActiveSurveyWasReceivedInMs = Date.now() - this.receivedAt!.getTime();
+    const remainingTimeInMs = this.activeSurvey!.remainingTimeMs - durationSinceActiveSurveyWasReceivedInMs;
+    return Math.max(100 * remainingTimeInMs / durationInMs, 0);
   }
 
   trackAnswer(index: number, answer: VoteAnswer) {
@@ -98,6 +140,10 @@ export interface ActiveSurvey {
   totalVotesCount: number;
   connectCode: string;
   survey: VoteSurvey;
+  remainingTimeMs: number;
+  options: {
+    duration: number
+  }
 }
 
 export interface VoteSurvey {

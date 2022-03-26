@@ -12,7 +12,8 @@ import { StartSurveyService } from './start-survey.service';
 })
 export class StartSurveyComponent {
   survey?: Survey;
-  addressForm = this.fb.group({
+  startSurveyForm = this.fb.group({
+    duration: [0]
   });
 
   constructor(private fb: FormBuilder, private router: Router, private startSurveyService: StartSurveyService) {
@@ -21,7 +22,10 @@ export class StartSurveyComponent {
 
   onSubmit() {
     if(this.survey) {
-      this.startSurveyService.start(this.survey).subscribe((activeSurvey: ActiveSurvey) => {
+      this.startSurveyService.start({
+        surveyId: this.survey._id,
+        ...this.startSurveyForm.value
+      }).subscribe((activeSurvey: ActiveSurvey) => {
         this.router.navigate(['/survey/' + activeSurvey.connectCode], { state: activeSurvey });
         console.log('Antwort vom Backend: ', activeSurvey);
       });

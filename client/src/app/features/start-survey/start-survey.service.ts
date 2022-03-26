@@ -9,11 +9,11 @@ import { ActiveSurvey } from '../survey/survey.component';
   providedIn: 'root'
 })
 export class StartSurveyService {
-  start(survey: Survey) {
+  start(startSurveyOptions: StartSurveyOptions) {
     return new Observable<ActiveSurvey>(observer => {
       const socket = io('http://localhost:3000');
       socket.on('connect', () => {
-        socket.emit('survey:start', survey._id, (result: any) => {
+        socket.emit('survey:start', startSurveyOptions, (result: any) => {
           observer.next(result);
           observer.complete();
           socket.disconnect();
@@ -21,4 +21,9 @@ export class StartSurveyService {
       });
     })
   }
+}
+
+interface StartSurveyOptions {
+  surveyId: string,
+  duration: number
 }

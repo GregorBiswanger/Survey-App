@@ -4,16 +4,18 @@ import { calcVoteInPercentAggregate, voteAggregate } from './aggregates/update.a
 import surveysRepository from './surveys-repository';
 const COLLECTION_NAME = 'active-surveys';
 
-async function save(surveyId: string, connectCode: string) {
-    const survey = await surveysRepository.loadOne(surveyId);
+async function save(options: StartSurveyOptions, connectCode: string) {
+    const survey = await surveysRepository.loadOne(options.surveyId);
 
     if (survey) {
-        const activeSurvey: ActiveSurvey = {
+        const { surveyId, ...optionsOtherThanId } = options;
+        let activeSurvey: ActiveSurvey = {
             connectCode,
             totalVotesCount: 0,
+            options: optionsOtherThanId,
             survey: {
-                _id: survey._id,
-                question: survey.question,
+                _id: survey._id, 
+                 question: survey.question,
                 answers: survey.answers.map<VoteAnswer>(answer => ({
                     answer,
                     voteCount: 0,
@@ -23,14 +25,23 @@ async function save(surveyId: string, connectCode: string) {
         }
 
         await dbCollection().insertOne(activeSurvey);
+
+        if (activeSurvey.options.duration) {
+            activeSurvey = addRemainingTime(activeSurvey);
+        }
+
         return activeSurvey;
     }
 
-    throw new Error(`Survey with id ${surveyId} does not exist.`);
+    throw new Error(`Survey with id ${options.surveyId} does not exist.`);
 }
 
 async function load(connectCode: string) {
-    return await dbCollection().findOne({ connectCode });
+    let activeSurvey = await dbCollection().findOne({ connectCode });
+    if (activeSurvey && activeSurvey.options.duration) {
+        activeSurvey = addRemainingTime(activeSurvey);
+    }
+    return activeSurvey;
 }
 
 async function existsConnectCode(connectCode: string) {
@@ -38,13 +49,17 @@ async function existsConnectCode(connectCode: string) {
 }
 
 async function updateVote(activeSurveyId: string, answerVoteIndex: number) {
-    const activeSurvey = await dbCollection().findOneAndUpdate({ _id: new ObjectId(activeSurveyId) }, [
+    const modifyResult = await dbCollection().findOneAndUpdate({ _id: new ObjectId(activeSurveyId) }, [
         voteAggregate(answerVoteIndex), calcVoteInPercentAggregate()
     ], {
         returnDocument: 'after'
     });
 
-    return activeSurvey.value;
+    let activeSurvey = modifyResult.value;
+    if (activeSurvey && activeSurvey.options.duration) {
+        activeSurvey = addRemainingTime(activeSurvey);
+    }
+    return activeSurvey;
 }
 
 async function remove(connectCode: string) {
@@ -53,6 +68,19 @@ async function remove(connectCode: string) {
 
 function dbCollection() {
     return db().collection<ActiveSurvey>(COLLECTION_NAME);
+}
+
+function addRemainingTime<T extends ActiveSurvey>(activeSurvey: T): T {
+    const durationInMs = activeSurvey.options.duration;
+    if (!durationInMs) {
+        return activeSurvey;
+    }
+
+    const runningForTimeInMs = Date.now() - (activeSurvey._id as ObjectId).getTimestamp().getTime();
+    return {
+        ...activeSurvey,
+        remainingTimeMs: Math.max(durationInMs - runningForTimeInMs, 0),
+    };
 }
 
 export default {
@@ -67,7 +95,9 @@ export interface ActiveSurvey {
     _id?: string | ObjectId;
     totalVotesCount: number;
     connectCode: string;
+    options: Omit<StartSurveyOptions, 'surveyId'>;
     survey: VoteSurvey;
+    remainingTimeMs?: number;
 }
 
 export interface VoteSurvey {
@@ -80,4 +110,9 @@ export interface VoteAnswer {
     answer: string;
     voteCount: number;
     voteInPercent: number;
+}
+
+export interface StartSurveyOptions {
+    surveyId: string,
+    duration: number
 }

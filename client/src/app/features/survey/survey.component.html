@@ -46,6 +46,8 @@
       </div>
     </div>
 
+    <mat-progress-bar *ngIf="activeSurvey.options.duration" mode="determinate" [value]="remainingTimeInPercent"></mat-progress-bar>
+
   </mat-card-content>
   <mat-card-actions>
     <button mat-raised-button color="primary" (click)="stopSurvey()">Beende Umfrage</button>
