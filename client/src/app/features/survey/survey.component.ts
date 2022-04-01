@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { RemainingTimeService } from './remaining-time.service';
 import { SurveyService } from './survey.service';
 
 @Component({
@@ -11,11 +12,16 @@ import { SurveyService } from './survey.service';
 export class SurveyComponent implements OnInit, OnDestroy {
   votedIndex = -1;
   connectCode = '';
-  pageReady = false;
+  readyToShow = false;
   surveyUrl = window.location.href;
-  active = true;
+  isSurveyActive = true;
   votedSubscription?: Subscription;
+  startCountdownSubscription?: Subscription;
   remainingTimeInPercent = 100;
+
+  get isVoted() {
+    return this.votedIndex > -1;
+  }
 
   get activeSurvey() {
     return this._activeSurvey!;
@@ -25,18 +31,21 @@ export class SurveyComponent implements OnInit, OnDestroy {
     this._activeSurvey = activeSurvey;
 
     if (activeSurvey && activeSurvey.options.duration) {
-      this._receivedAt = new Date();
-      this.updateRemainingTime();
+      this.startCountdownSubscription?.unsubscribe();
+
+      this.startCountdownSubscription = this.remainingTimeService.startCountdown(activeSurvey.options.duration, activeSurvey.remainingTimeMs)
+        .subscribe(remainingTimeInPercent => {
+          this.remainingTimeInPercent = remainingTimeInPercent;
+        });
     }
   }
 
   private _activeSurvey?: ActiveSurvey;
-  private _intervalHandle?: number;
-  private _receivedAt?: Date;
 
-  constructor(private router: Router, 
-    private activatedRoute: ActivatedRoute, 
-    private surveyService: SurveyService) {}
+  constructor(private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private surveyService: SurveyService,
+    private remainingTimeService: RemainingTimeService) { }
 
   ngOnInit() {
     this.activatedRoute.params.subscribe(params => {
@@ -46,28 +55,30 @@ export class SurveyComponent implements OnInit, OnDestroy {
         this.listenSurveyStopped();
         this.loadActiveSurvey();
       } else {
-        this.pageReady = true;
+        this.readyToShow = true;
       }
     });
   }
 
   listenSurveyStopped() {
     this.surveyService.listenStopped(this.connectCode).subscribe(() => {
-      this.active = false;
-      this.updateRemainingTime();
+      this.isSurveyActive = false;
+      this.startCountdownSubscription?.unsubscribe();
+      this.remainingTimeInPercent = 0;
     });
   }
 
   loadActiveSurvey() {
     this.surveyService.loadActiveSurvey(this.connectCode).subscribe(activeSurvey => {
       this.activeSurvey = activeSurvey;
-      this.pageReady = true;
+      this.readyToShow = true;
 
-      if (!activeSurvey) {
+      if (activeSurvey === undefined) {
         return;
       }
 
       this.votedIndex = this.surveyService.lastVotedIndex(activeSurvey._id!);
+      
       if (this.isNotPossibleToVote()) {
         this.listenVoting();
       }
@@ -97,7 +108,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
   }
 
   isPossibleToVote() {
-    return this.activeSurvey && this.surveyService.canVote(this.activeSurvey._id!) && this.active;
+    return this.activeSurvey && this.surveyService.canVote(this.activeSurvey._id!) && this.isSurveyActive;
   }
 
   getPercentageWidthStyle(voteAnswer: VoteAnswer) {
@@ -105,36 +116,6 @@ export class SurveyComponent implements OnInit, OnDestroy {
     return {
       width: percent + '%'
     }
-  }
-
-  private updateRemainingTime() {
-    this.remainingTimeInPercent = this.calculateRemainingTimeInPercent();
-
-    if (this._intervalHandle) {
-      window.clearInterval(this._intervalHandle);
-    }
-
-    if (this.remainingTimeInPercent <= 0) {
-      return;
-    }
-
-    this._intervalHandle = window.setInterval(() => {
-      this.remainingTimeInPercent = this.calculateRemainingTimeInPercent();
-      if (this.remainingTimeInPercent <= 0) {
-        window.clearInterval(this._intervalHandle);
-      }
-    }, 200);
-  }
-
-  private calculateRemainingTimeInPercent() {
-    if (!this.active) {
-      return 0;
-    }
-
-    const durationInMs = this.activeSurvey!.options.duration;
-    const durationSinceActiveSurveyWasReceivedInMs = Date.now() - this._receivedAt!.getTime();
-    const remainingTimeInMs = this.activeSurvey!.remainingTimeMs - durationSinceActiveSurveyWasReceivedInMs;
-    return Math.max(100 * remainingTimeInMs / durationInMs, 0);
   }
 
   trackAnswer(index: number, answer: VoteAnswer) {
@@ -147,6 +128,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.votedSubscription?.unsubscribe();
+    this.startCountdownSubscription?.unsubscribe();
   }
 }
 

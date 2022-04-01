@@ -1,4 +1,4 @@
-<mat-card *ngIf="!activeSurvey && pageReady">
+<mat-card *ngIf="!activeSurvey && readyToShow">
   <mat-card-header>
     <mat-card-title>Umfrage PIN</mat-card-title>
   </mat-card-header>
@@ -26,13 +26,13 @@
   </button>
 </ng-container>
 
-<mat-card class="poll" [class.poll--voted]="votedIndex > -1" *ngIf="activeSurvey">
+<mat-card class="poll" [class.poll--voted]="isVoted" *ngIf="activeSurvey">
   <mat-card-header>
     <mat-card-title>{{activeSurvey?.survey?.question}}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
 
-    <h3 *ngIf="active === false">Umfrage beendet!</h3>
+    <h3 *ngIf="isSurveyActive === false">Umfrage beendet!</h3>
 
     <div class="poll__answers">
       <div class="poll__answer"
@@ -40,7 +40,7 @@
         [class.poll__answer--selected]="i === votedIndex">
         {{ voteAnswer.answer }}
         <span class="poll__percentage-bar" [ngStyle]="getPercentageWidthStyle(voteAnswer)"></span>
-        <span class="poll__percentage-value" *ngIf="votedIndex > -1 || active === false">
+        <span class="poll__percentage-value" *ngIf="isVoted || isSurveyActive === false">
           {{ voteAnswer.voteInPercent }}%
         </span>
       </div>
