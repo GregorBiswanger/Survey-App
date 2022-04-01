@@ -13,7 +13,7 @@
           <mat-list role="list">
             <ng-container *ngFor="let survey of allSurveys | async">
               <mat-list-item role="listitem">
-                {{survey.question}}
+                <a routerLink="survey-info" [state]="survey">{{survey.question}}</a>
                 <button mat-icon-button aria-label="Starte Umfrage" routerLink="start-survey" [state]="survey">
                   <mat-icon>play_circle_outline</mat-icon>
                 </button>
