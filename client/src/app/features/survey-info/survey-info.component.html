@@ -14,8 +14,8 @@
                         <ng-container *ngFor="let activeSurvey of activeSurveys">
                             <mat-list-item role="listitem">
                                 {{ activeSurvey._id! | dateFromObjectId | date : 'dd.MM.yyyy' }}
-                                <button mat-icon-button aria-label="Starte Umfrage">
-                                    <mat-icon>play_circle_outline</mat-icon>
+                                <button mat-icon-button aria-label="Öffne Umfrage" (click)="openActiveSurvey(activeSurvey.connectCode)">
+                                    <mat-icon>open_in_new</mat-icon>
                                 </button>
                             </mat-list-item>
                             <mat-divider inset="true"></mat-divider>

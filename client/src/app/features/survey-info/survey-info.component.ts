@@ -13,7 +13,7 @@ export class SurveyInfoComponent implements OnInit {
   survey?: Survey;
   activeSurveys?: ActiveSurvey[];
 
-  constructor(router: Router, private surveyInfoService: SurveyInfoService) { 
+  constructor(private router: Router, private surveyInfoService: SurveyInfoService) { 
     this.survey = router.getCurrentNavigation()?.extras.state as Survey;
   }
 
@@ -23,6 +23,14 @@ export class SurveyInfoComponent implements OnInit {
         this.activeSurveys = activeSurveys;
       });
     }
+  }
+
+  openActiveSurvey(connectCode: string) {
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/survey/' + connectCode])
+    );
+
+    window.open(url, '_blank');
   }
 
 }
