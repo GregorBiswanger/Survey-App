@@ -21,13 +21,17 @@ export class StartSurveyComponent {
   }
 
   onSubmit() {
-    if(this.survey) {
+    if (this.survey) {
       this.startSurveyService.start({
         surveyId: this.survey._id,
         ...this.startSurveyForm.value
       }).subscribe((activeSurvey: ActiveSurvey) => {
-        this.router.navigate(['/survey/' + activeSurvey.connectCode]);
-        console.log('Antwort vom Backend: ', activeSurvey);
+        const url = this.router.serializeUrl(
+          this.router.createUrlTree(['/survey/' + activeSurvey.connectCode])
+        );
+
+        window.open(url, '_blank');
+        this.router.navigate(['']);
       });
     }
   }

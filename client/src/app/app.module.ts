@@ -7,12 +7,14 @@ import { AppShellComponent } from './_layouts/app-shell/app-shell.component';
 
 import { SurveyOverviewComponent } from './features/survey-overview/survey-overview.component';
 import { CoreModule } from './core/core.module';
+import { SurveyShellComponent } from './_layouts/survey-shell/survey-shell.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AppShellComponent,
-    SurveyOverviewComponent
+    SurveyOverviewComponent,
+    SurveyShellComponent
   ],
   imports: [
     BrowserModule,

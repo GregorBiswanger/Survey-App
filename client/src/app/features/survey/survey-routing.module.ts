@@ -4,7 +4,7 @@ import { SurveyComponent } from './survey.component';
 
 const routes: Routes = [
   { path: '', component: SurveyComponent},
-  { path: '/:connectCode', component: SurveyComponent}
+  { path: ':connectCode', component: SurveyComponent}
 ];
 
 @NgModule({
