@@ -44,6 +44,12 @@ async function load(connectCode: string) {
     return activeSurvey;
 }
 
+async function loadFromSurveyId(surveyId: string) {
+    const activeSurveys = await dbCollection().find({ "survey._id": new ObjectId(surveyId) }).toArray();
+
+    return activeSurveys;
+}
+
 async function existsConnectCode(connectCode: string) {
     return await dbCollection().countDocuments({ connectCode }, { limit: 1 }) > 0;
 }
@@ -86,6 +92,7 @@ function addRemainingTime<T extends ActiveSurvey>(activeSurvey: T): T {
 export default {
     save,
     load,
+    loadFromSurveyId,
     existsConnectCode,
     updateVote,
     remove
