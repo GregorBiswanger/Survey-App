@@ -15,7 +15,6 @@ export class SurveyComponent implements OnInit, OnDestroy {
   readyToShow = false;
   surveyUrl = window.location.href;
   isSurveyActive = true;
-  votedSubscription?: Subscription;
   startCountdownSubscription?: Subscription;
   remainingTimeInPercent = 100;
 
@@ -78,7 +77,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
       }
 
       this.votedIndex = this.surveyService.lastVotedIndex(activeSurvey._id!);
-      
+
       if (this.isNotPossibleToVote()) {
         this.listenVoting();
       }
@@ -90,7 +89,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
   }
 
   listenVoting() {
-    this.votedSubscription = this.surveyService.listenVoting(this.connectCode)
+    this.surveyService.listenVoting(this.connectCode)
       .subscribe(activeSurvey => this.activeSurvey = activeSurvey);
   }
 
@@ -102,7 +101,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
     if (this.isPossibleToVote()) {
       this.votedIndex = surveyIndex;
 
-      this.votedSubscription = this.surveyService.vote(this.activeSurvey?._id!, surveyIndex)
+      this.surveyService.vote(this.activeSurvey?._id!, surveyIndex)
         .subscribe(activeSurvey => this.activeSurvey = activeSurvey);
     }
   }
@@ -127,7 +126,6 @@ export class SurveyComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.votedSubscription?.unsubscribe();
     this.startCountdownSubscription?.unsubscribe();
   }
 }

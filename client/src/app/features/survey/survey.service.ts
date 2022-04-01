@@ -8,6 +8,8 @@ import { ActiveSurvey } from './survey.component';
   providedIn: 'root'
 })
 export class SurveyService {
+  socket = io('/');
+
   constructor(private httpClient: HttpClient) { }
 
   loadActiveSurvey(connectCode: string) {
@@ -16,32 +18,22 @@ export class SurveyService {
 
   vote(activeSurveyId: string, voteIndex: number) {
     return new Observable<ActiveSurvey>((observer) => {
-      const socket = io('http://localhost:3000');
-      socket.on('survey:voted', (activeSurvey: ActiveSurvey) => {
+      this.socket.on('survey:voted', (activeSurvey: ActiveSurvey) => {
         observer.next(activeSurvey);
       });
 
-      socket.emit('survey:vote', activeSurveyId, voteIndex);
+      this.socket.emit('survey:vote', activeSurveyId, voteIndex);
       localStorage.setItem(activeSurveyId, voteIndex.toString());
-
-      return () => {
-        socket.disconnect();
-      }
     });
   }
 
   listenVoting(connectCode: string) {
     return new Observable<ActiveSurvey>(observer => {
-      const socket = io('http://localhost:3000');
-      socket.on('survey:voted', (activeSurvey: ActiveSurvey) => {
+      this.socket.on('survey:voted', (activeSurvey: ActiveSurvey) => {
         observer.next(activeSurvey);
       });
 
-      socket.emit('survey:listen', connectCode);
-
-      return () => {
-        socket.disconnect();
-      }
+      this.socket.emit('survey:listen', connectCode);
     });
   }
 
@@ -50,23 +42,17 @@ export class SurveyService {
   }
 
   stop(connectCode: string) {
-    const socket = io('http://localhost:3000');
-    socket.emit('survey:stop', connectCode);
+    this.socket.emit('survey:stop', connectCode);
   }
 
   listenStopped(connectCode: string) {
     return new Observable(observer => {
-      const socket = io('http://localhost:3000');
-      socket.on('survey:stopped', () => {
+      this.socket.on('survey:stopped', () => {
         observer.next();
         observer.complete();
       });
 
-      socket.emit('survey:listenStopped', connectCode);
-
-      return () => {
-        socket.disconnect();
-      }
+      this.socket.emit('survey:listenStopped', connectCode);
     });
   }
 
