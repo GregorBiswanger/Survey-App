@@ -1,6 +1,6 @@
 import { ActiveSurvey } from './../survey/survey.component';
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Survey } from '../create-survey/create-survey.component';
 import { StartSurveyService } from './start-survey.service';
@@ -26,7 +26,7 @@ export class StartSurveyComponent {
         surveyId: this.survey._id,
         ...this.startSurveyForm.value
       }).subscribe((activeSurvey: ActiveSurvey) => {
-        this.router.navigate(['/survey/' + activeSurvey.connectCode], { state: activeSurvey });
+        this.router.navigate(['/survey/' + activeSurvey.connectCode]);
         console.log('Antwort vom Backend: ', activeSurvey);
       });
     }
