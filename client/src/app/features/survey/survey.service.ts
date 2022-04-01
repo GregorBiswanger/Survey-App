@@ -46,9 +46,9 @@ export class SurveyService {
   }
 
   listenStopped(connectCode: string) {
-    return new Observable(observer => {
-      this.socket.on('survey:stopped', () => {
-        observer.next();
+    return new Observable<ActiveSurvey>(observer => {
+      this.socket.on('survey:stopped', (activeSurvey: ActiveSurvey) => {
+        observer.next(activeSurvey);
         observer.complete();
       });
 

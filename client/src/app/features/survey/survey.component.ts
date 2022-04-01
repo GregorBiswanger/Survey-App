@@ -60,7 +60,8 @@ export class SurveyComponent implements OnInit, OnDestroy {
   }
 
   listenSurveyStopped() {
-    this.surveyService.listenStopped(this.connectCode).subscribe(() => {
+    this.surveyService.listenStopped(this.connectCode).subscribe((activeSurvey) => {
+      this.activeSurvey = activeSurvey;
       this.isSurveyActive = false;
       this.startCountdownSubscription?.unsubscribe();
       this.remainingTimeInPercent = 0;
@@ -111,7 +112,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
   }
 
   getPercentageWidthStyle(voteAnswer: VoteAnswer) {
-    const percent = this.votedIndex > -1 ? voteAnswer.voteInPercent : 0;
+    const percent = this.votedIndex > -1 || !this.isSurveyActive ? voteAnswer.voteInPercent : 0;   
     return {
       width: percent + '%'
     }

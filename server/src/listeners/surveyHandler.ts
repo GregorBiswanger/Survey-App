@@ -47,8 +47,7 @@ export default (io: Io, socket: Socket) => {
             await activeSurveysRepository.remove(connectCode);
         };
 
-        io.to(connectCode).emit('survey:stopped', '');
-        // io.in(connectCode).socketsLeave(connectCode);
+        io.to(connectCode).emit('survey:stopped', activeSurvey);
     }
 
     const listenStopped = async (connectCode: string) => {
